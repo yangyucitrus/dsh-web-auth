@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib/types",
+    "declaration": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "es2022",
+    "lib": ["es2023"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"]
+}

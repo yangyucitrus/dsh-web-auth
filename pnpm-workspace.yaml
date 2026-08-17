@@ -1,0 +1,13 @@
+packages:
+  - .
+  - ../dsh-fork/vendor/*
+  - ../dsh-fork/packages/host/webserver
+  - ../dsh-fork/packages/runtime-diagnostics/invariants
+
+allowBuilds:
+  esbuild: set this to true or false
+
+onlyBuiltDependencies:
+  - esbuild
+
+preferWorkspacePackages: true
