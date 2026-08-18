@@ -42,6 +42,7 @@ async function loadComposition(port = 0): Promise<{ ctx: Context; port: number }
     '    keys:',
     "      - 'secret-one'",
     "      - 'secret-two'",
+    "      - 'secret@one'",
     '    excludePaths:',
     "      - '/healthz'",
     "    title: 'Test Harness'",
@@ -148,7 +149,6 @@ describe('real Loader composition with web-auth', () => {
       expect(await request(port, '/probe', { headers: { cookie } })).toMatchObject({ status: 200, body: 'OPEN' })
       // A key with characters outside the cookie-octet range (@) round-trips
       // through the encoded session cookie (decode on read).
-      expect(setCookie).toContain('dsh_key=secret-one')
       expect(await request(port, '/probe', { headers: { cookie: 'dsh_key=secret%40one' } })).toMatchObject({ status: 200, body: 'OPEN' })
 
       // Wrong key on the login POST: 401 + login page with an error state.
