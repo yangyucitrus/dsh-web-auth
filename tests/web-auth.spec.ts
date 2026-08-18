@@ -146,6 +146,10 @@ describe('real Loader composition with web-auth', () => {
       expect(setCookie).toMatch(/SameSite=Strict/)
       const cookie = setCookie?.split(';')[0] ?? ''
       expect(await request(port, '/probe', { headers: { cookie } })).toMatchObject({ status: 200, body: 'OPEN' })
+      // A key with characters outside the cookie-octet range (@) round-trips
+      // through the encoded session cookie (decode on read).
+      expect(setCookie).toContain('dsh_key=secret-one')
+      expect(await request(port, '/probe', { headers: { cookie: 'dsh_key=secret%40one' } })).toMatchObject({ status: 200, body: 'OPEN' })
 
       // Wrong key on the login POST: 401 + login page with an error state.
       const badLogin = await fetch(`http://127.0.0.1:${String(port)}/__dsh_auth`, {

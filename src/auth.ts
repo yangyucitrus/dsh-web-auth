@@ -39,7 +39,15 @@ export function keyCandidates(
   const custom = req.headers[header.toLowerCase()]
   if (typeof custom === 'string') candidates.push(custom)
   const cookie = parseCookie(req.headers.cookie)[cookieName]
-  if (cookie !== undefined && cookie.length > 0) candidates.push(cookie)
+  if (cookie !== undefined && cookie.length > 0) {
+    // The session cookie is URL-encoded on write (cookie-octet excludes '@'
+    // etc.), so decode before comparing against the raw config keys.
+    try {
+      candidates.push(decodeURIComponent(cookie))
+    } catch {
+      candidates.push(cookie)
+    }
+  }
   return candidates
 }
 
