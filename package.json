@@ -31,11 +31,11 @@
     "@deepseek-ai/dsh-host-webserver": ">=0.1.0-rc.5"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/cordis-plugin-include": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
-    "@deepseek-ai/dsh-host-webserver": "workspace:^",
-    "@deepseek-ai/dsh-invariants": "workspace:^",
+    "@deepseek-ai/cordis": ">=0.1.0-rc.5",
+    "@deepseek-ai/cordis-plugin-include": ">=0.1.0-rc.5",
+    "@deepseek-ai/cordis-plugin-loader": ">=0.1.0-rc.5",
+    "@deepseek-ai/dsh-host-webserver": ">=0.1.0-rc.5",
+    "@deepseek-ai/dsh-invariants": ">=0.1.0-rc.5",
     "@types/node": "^22.10.0",
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
