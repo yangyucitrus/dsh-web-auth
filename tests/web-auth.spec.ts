@@ -147,6 +147,14 @@ describe('real Loader composition with web-auth', () => {
       expect(setCookie).toMatch(/SameSite=Strict/)
       const cookie = setCookie?.split(';')[0] ?? ''
       expect(await request(port, '/probe', { headers: { cookie } })).toMatchObject({ status: 200, body: 'OPEN' })
+      // Authenticated access to the auth page must not bounce back to itself
+      // (which would produce a redirect loop): fixed landing at '/'.
+      const authedAuthGet = await fetch(`http://127.0.0.1:${String(port)}/__dsh_auth`, {
+        headers: { cookie, referer: `http://127.0.0.1:${String(port)}/__dsh_auth` },
+        redirect: 'manual',
+      })
+      expect(authedAuthGet.status).toBe(302)
+      expect(authedAuthGet.headers.get('location')).toBe('/')
       // A key with characters outside the cookie-octet range (@) round-trips
       // through the encoded session cookie (decode on read).
       expect(await request(port, '/probe', { headers: { cookie: 'dsh_key=secret%40one' } })).toMatchObject({ status: 200, body: 'OPEN' })

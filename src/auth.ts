@@ -162,10 +162,12 @@ async function handleAuthRequest(
   const method = req.method ?? 'GET'
   const referer = req.headers.referer ?? '/'
   if (method === 'GET' || method === 'HEAD') {
-    // Already authenticated (cookie or header): don't show the login page again.
+    // Already authenticated (cookie or header): don't show the login page.
+    // Jump to the root unconditionally — using the referer here can bounce
+    // back to this same path when the referer *is* the auth page.
     const candidates = keyCandidates(req, config.header, cookieName)
     if (candidates.some((candidate) => keys.includes(candidate))) {
-      res.writeHead(302, { location: safeRedirect(referer, '/') })
+      res.writeHead(302, { location: '/' })
       res.end()
       return
     }
@@ -181,8 +183,9 @@ async function handleAuthRequest(
     const params = new URLSearchParams(body)
     const candidate = params.get('key') ?? ''
     if (candidate.length > 0 && keys.includes(candidate)) {
+      const target = safeRedirect(referer, '/')
       res.writeHead(302, {
-        location: safeRedirect(referer, authPath),
+        location: target === authPath ? '/' : target,
         'set-cookie': sessionCookie(cookieName, candidate, cookieMaxAgeSeconds, secure),
       })
       res.end()
@@ -199,7 +202,7 @@ async function handleAuthRequest(
   }
   if (method === 'DELETE') {
     res.writeHead(302, {
-      location: safeRedirect(referer, authPath),
+      location: safeRedirect(referer, '/'),
       'set-cookie': `${cookieName}=; Path=/; Max-Age=0; SameSite=Strict`,
     })
     res.end()
