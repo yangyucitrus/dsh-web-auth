@@ -128,11 +128,18 @@ describe('real Loader composition with web-auth', () => {
       // Cookie session login: POST the key, follow the 302, then the cookie passes.
       const loginResponse = await fetch(`http://127.0.0.1:${String(port)}/__dsh_auth`, {
         method: 'POST',
-        headers: { 'content-type': 'application/x-www-form-urlencoded', accept: 'text/html' },
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          accept: 'text/html',
+          // Browsers send a full same-origin URL as Referer on form POSTs.
+          referer: `http://127.0.0.1:${String(port)}/some/app?tab=1`,
+        },
         body: 'key=secret-one',
         redirect: 'manual',
       })
       expect(loginResponse.status).toBe(302)
+      // Redirect must land back on the referer's path (not the auth page).
+      expect(loginResponse.headers.get('location')).toBe('/some/app?tab=1')
       const setCookie = loginResponse.headers.get('set-cookie')
       expect(setCookie).toMatch(/dsh_key=secret-one/)
       expect(setCookie).toMatch(/Max-Age=604800/)

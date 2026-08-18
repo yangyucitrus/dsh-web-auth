@@ -154,6 +154,13 @@ async function handleAuthRequest(
   const method = req.method ?? 'GET'
   const referer = req.headers.referer ?? '/'
   if (method === 'GET' || method === 'HEAD') {
+    // Already authenticated (cookie or header): don't show the login page again.
+    const candidates = keyCandidates(req, config.header, cookieName)
+    if (candidates.some((candidate) => keys.includes(candidate))) {
+      res.writeHead(302, { location: safeRedirect(referer, '/') })
+      res.end()
+      return
+    }
     res.writeHead(200, {
       'content-type': 'text/html; charset=utf-8',
       'cache-control': 'no-store',
@@ -194,8 +201,21 @@ async function handleAuthRequest(
   res.end('method not allowed')
 }
 
-/** Keep a redirect target same-origin: fall back to the auth path otherwise. */
+/**
+ * Keep a redirect target same-origin: accept a relative path or a full
+ * same-origin URL (browsers send the latter as the Referer header on form
+ * POSTs) and normalize to its pathname; fall back otherwise.
+ */
 export function safeRedirect(target: string, fallback: string): string {
-  if (!target.startsWith('/') || target.startsWith('//')) return fallback
-  return target
+  if (target.startsWith('//')) return fallback
+  if (target.startsWith('/')) return target
+  try {
+    const url = new URL(target)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return fallback
+    const { pathname, search } = url
+    if (pathname.length === 0) return fallback
+    return pathname + search
+  } catch {
+    return fallback
+  }
 }
